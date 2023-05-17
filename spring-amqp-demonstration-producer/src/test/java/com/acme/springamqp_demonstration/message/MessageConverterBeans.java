@@ -7,10 +7,6 @@ import org.springframework.context.annotation.Bean;
 
 @TestConfiguration
 public class MessageConverterBeans {
-  @Bean
-  public Jackson2JsonMessageConverter jackson2Converter() {
-    return new Jackson2JsonMessageConverter();
-  }
 
   @Bean
   public SimpleMessageConverter simpleMessageConverter() {

@@ -18,12 +18,12 @@ public class RabbitTemplateBeans {
   @Bean
   public RabbitTemplate jsonRabbitTemplate(ConnectionFactory connectionFactory) {
     RabbitTemplate template = new RabbitTemplate(connectionFactory);
-    template.setMessageConverter(jsonConverter());
+    template.setMessageConverter(jackson2Converter());
     return template;
   }
 
   @Bean
-  public MessageConverter jsonConverter() {
+  public MessageConverter jackson2Converter() {
     return new Jackson2JsonMessageConverter();
   }
 }
