@@ -13,17 +13,10 @@ public class SimpleNewsListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SimpleNewsListener.class);
 
-  @Bean
-  public SimpleNewsWorker receiveSimpleNews1Consumer1() {
-    return new SimpleNewsWorker(1);
-  }
-
-  @Bean
-  public SimpleNewsWorker receiveSimpleNews1Consumer2() {
-    return new SimpleNewsWorker(2);
-  }
-
-  @RabbitListener(queues = { "${simple.news.queue.name.2}" })
+  @RabbitListener(
+      queues = { "${simple.news.queue.name.2}" },
+      containerFactory = "defaultContainerFactory"
+  )
   public void receiveSimpleNews2(String message) {
     LOGGER.info("Received Simple News from Queue 2: " + message);
   }

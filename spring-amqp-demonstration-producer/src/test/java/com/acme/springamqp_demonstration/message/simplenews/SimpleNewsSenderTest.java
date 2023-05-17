@@ -11,23 +11,22 @@ import static org.mockito.ArgumentMatchers.startsWith;
 
 public class SimpleNewsSenderTest {
 
+  private static final String SIMPLE_NEWS_EXCHANGE_NAME = "com.acme.simple-news.exchange";
+  private static final String SIMPLE_NEWS_ROUTING_KEY = "";
   private SimpleNewsSender simpleNewsSender;
   private RabbitTemplate rabbitTemplateMock;
-
-  String simpleNewsExchangeName = "com.acme.simple-news.exchange";
-  String simpleNewsRoutingKey = "";
 
   @BeforeEach
   public void setUp() {
     rabbitTemplateMock = Mockito.mock(RabbitTemplate.class);
-    simpleNewsSender = new SimpleNewsSender(rabbitTemplateMock, simpleNewsExchangeName, simpleNewsRoutingKey);
+    simpleNewsSender = new SimpleNewsSender(rabbitTemplateMock, SIMPLE_NEWS_EXCHANGE_NAME, SIMPLE_NEWS_ROUTING_KEY);
   }
 
   @Test
-  public void testBroadcast() {
-    assertThatCode(() -> this.simpleNewsSender.sendSimpleNews()).doesNotThrowAnyException();
+  public void testSendSimpleNews() {
+    assertThatCode(() -> this.simpleNewsSender.sendSimpleNews("Simple News ...")).doesNotThrowAnyException();
     Mockito.verify(this.rabbitTemplateMock)
-        .convertAndSend(eq(simpleNewsRoutingKey), eq(simpleNewsExchangeName), startsWith("simple news "));
+        .convertAndSend(eq(SIMPLE_NEWS_ROUTING_KEY), eq(SIMPLE_NEWS_EXCHANGE_NAME), startsWith("Simple News "));
   }
 
 }

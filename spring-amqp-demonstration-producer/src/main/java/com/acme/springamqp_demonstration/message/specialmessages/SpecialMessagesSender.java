@@ -5,7 +5,6 @@ import com.acme.springamqp_demonstration.message.specialmessages.model.SpecialMe
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,44 +18,62 @@ public class SpecialMessagesSender {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SpecialMessagesSender.class);
 
-  @Value("${special.messages.exchange.name1}")
-  private String SPECIAL_MESSAGE_EXCHANGE_NAME_1;
-
-  @Value("${special.messages.routing.key}")
-  private String SPECIAL_MESSAGES_ROUTING_KEY;
-
   private final RabbitTemplate rabbitTemplate;
+  private final String specialMessageExchangeName1;
+  private final String specialMessagesRoutingKey;
 
   private final CurrentDateTimeProvider currentDateTimeProvider = new CurrentDateTimeProvider();
 
-  public SpecialMessagesSender(RabbitTemplate rabbitTemplate) {
+  public SpecialMessagesSender(
+      RabbitTemplate rabbitTemplate,
+      @Value("${special.messages.exchange.name1}") String specialMessageExchangeName1,
+      @Value("${special.messages.routing.key}") String specialMessagesRoutingKey
+  ) {
     this.rabbitTemplate = rabbitTemplate;
+    this.specialMessageExchangeName1 = specialMessageExchangeName1;
+    this.specialMessagesRoutingKey = specialMessagesRoutingKey;
   }
 
   @Scheduled(cron = "${special.messages.sender1.cron}")
   private void reportSpecialMessages() {
-    specialMessages(rabbitTemplate, new SpecialMessagePropertiesFactory("sales", 1)
-        .createMessageProperties());
-    specialMessages(rabbitTemplate, new SpecialMessagePropertiesFactory("customer", 1)
-        .createMessageProperties());
-    specialMessages(rabbitTemplate, new SpecialMessagePropertiesFactory("sales", 2)
-        .createMessageProperties());
-    specialMessages(rabbitTemplate, new SpecialMessagePropertiesFactory("customer", 2)
-        .createMessageProperties());
+    String messageContent = "Special Message ";
+    SpecialMessage specialMessage = new SpecialMessage(messageContent, currentDateTimeProvider.getCurrentDateTime());
+
+    String salesValue = "sales";
+    String customerValue = "customer";
+    int pricingModelValue_1 = 1;
+    int pricingModelValue_2 = 2;
+    sendSpecialMessages(
+        new Jackson2JsonMessageConverter().toMessage(
+            specialMessage,
+            new SpecialMessagePropertiesFactory(salesValue, pricingModelValue_1).createMessageProperties()
+        )
+    );
+    sendSpecialMessages(
+        new Jackson2JsonMessageConverter().toMessage(
+            specialMessage,
+            new SpecialMessagePropertiesFactory(customerValue, pricingModelValue_1).createMessageProperties()
+        )
+    );
+    sendSpecialMessages(
+        new Jackson2JsonMessageConverter().toMessage(
+            specialMessage,
+            new SpecialMessagePropertiesFactory(salesValue, pricingModelValue_2).createMessageProperties()
+        )
+    );
+    sendSpecialMessages(
+        new Jackson2JsonMessageConverter().toMessage(
+            specialMessage,
+            new SpecialMessagePropertiesFactory(customerValue, pricingModelValue_2).createMessageProperties()
+        )
+    );
   }
 
-  private void specialMessages(
-      RabbitTemplate rabbitTemplate,
-      MessageProperties messageProperties
-  ) {
-    Message message = new Jackson2JsonMessageConverter().toMessage(
-        new SpecialMessage("Special Message ", currentDateTimeProvider.getCurrentDateTime()),
-        messageProperties
-    );    
+  void sendSpecialMessages(Message message) {
     LOGGER.info("Sending following Special Message with the header 'from': {} and 'pricingModel': {}.",
-        messageProperties.getHeader("from"), messageProperties.getHeader("pricingModel"));
-    rabbitTemplate.convertAndSend(SPECIAL_MESSAGE_EXCHANGE_NAME_1, SPECIAL_MESSAGES_ROUTING_KEY, message);
-
+        message.getMessageProperties().getHeader("from"),
+        message.getMessageProperties().getHeader("pricingModel"));
+    rabbitTemplate.convertAndSend(specialMessageExchangeName1, specialMessagesRoutingKey, message);
   }
 
 }

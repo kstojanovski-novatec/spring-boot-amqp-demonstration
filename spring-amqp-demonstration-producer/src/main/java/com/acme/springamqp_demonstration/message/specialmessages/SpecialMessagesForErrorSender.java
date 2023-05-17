@@ -18,37 +18,44 @@ import org.springframework.stereotype.Service;
 public class SpecialMessagesForErrorSender {
   private static final Logger LOGGER = LoggerFactory.getLogger(SpecialMessagesForErrorSender.class);
 
-  @Value("${special.messages.exchange.name2}")
-  private String SPECIAL_MESSAGE_EXCHANGE_NAME_2;
-
-  @Value("${special.messages.routing.key}")
-  private String SPECIAL_MESSAGES_ROUTING_KEY;
+  private final String specialMessageExchangeName2;
+  private final String specialMessagesRoutingKey;
 
   private final RabbitTemplate rabbitTemplate;
 
   private final CurrentDateTimeProvider currentDateTimeProvider = new CurrentDateTimeProvider();
 
-  public SpecialMessagesForErrorSender(RabbitTemplate rabbitTemplate) {
+  public SpecialMessagesForErrorSender(
+      RabbitTemplate rabbitTemplate,
+      @Value("${special.messages.exchange.name2}") String specialMessageExchangeName2,
+      @Value("${special.messages.routing.key}") String specialMessagesRoutingKey
+  ) {
     this.rabbitTemplate = rabbitTemplate;
+    this.specialMessageExchangeName2 = specialMessageExchangeName2;
+    this.specialMessagesRoutingKey = specialMessagesRoutingKey;
   }
 
   @Scheduled(cron = "${special.messages.sender2.cron}")
   private void reportSpecialMessages() {
-    specialMessages(rabbitTemplate, new SpecialMessagePropertiesFactory("sales", 1)
-        .createMessageProperties());
+    String messageContent = "Special Message ";
+    SpecialMessage specialMessage =
+        new SpecialMessage(messageContent, currentDateTimeProvider.getCurrentDateTime());
+
+    String salesValue = "sales";
+    int pricingModelValue_1 = 1;
+    sendSpecialMessages(
+        new Jackson2JsonMessageConverter().toMessage(
+            specialMessage,
+        new SpecialMessagePropertiesFactory(salesValue, pricingModelValue_1).createMessageProperties()
+        )
+    );
   }
 
-  private void specialMessages(
-      RabbitTemplate rabbitTemplate,
-      MessageProperties messageProperties
-  ) {
-    Message message = new Jackson2JsonMessageConverter().toMessage(
-        new SpecialMessage("Special Message ", currentDateTimeProvider.getCurrentDateTime()),
-        messageProperties
-    );
+  void sendSpecialMessages(Message message) {
     LOGGER.info("Sending following Special Message with the header 'from': {} and 'pricingModel': {}.",
-        messageProperties.getHeader("from"), messageProperties.getHeader("pricingModel"));
-    rabbitTemplate.convertAndSend(SPECIAL_MESSAGE_EXCHANGE_NAME_2, SPECIAL_MESSAGES_ROUTING_KEY, message);
+        message.getMessageProperties().getHeader("from"),
+        message.getMessageProperties().getHeader("pricingModel"));
+    rabbitTemplate.convertAndSend(specialMessageExchangeName2, specialMessagesRoutingKey, message);
   }
 
 }

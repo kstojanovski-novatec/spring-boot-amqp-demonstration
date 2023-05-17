@@ -78,11 +78,4 @@ public class ImportantTopicsParallelRetryListenerConfiguration {
     return factory;
   }
 
-  @Bean
-  public SimpleRabbitListenerContainerFactory defaultContainerFactory(ConnectionFactory connectionFactory) {
-    SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
-    factory.setConnectionFactory(connectionFactory);
-    return factory;
-  }
-
 }

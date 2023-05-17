@@ -16,27 +16,35 @@ public class ImportantTopicsForErrorSender {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportantTopicsForErrorSender.class);
 
-  @Value("${important.topics.exchange.name2}")
-  public String IMPORTANT_TOPICS_EXCHANGE_NAME_2;
-
   private final RabbitTemplate rabbitTemplate;
+  private final String importantTopicsErrorExchangeName;
 
   private final CurrentDateTimeProvider currentDateTimeProvider = new CurrentDateTimeProvider();
 
-  public ImportantTopicsForErrorSender(RabbitTemplate rabbitTemplate) {
+  public ImportantTopicsForErrorSender(
+      RabbitTemplate rabbitTemplate,
+      @Value("${important.topics.exchange.name2}") String importantTopicsErrorExchangeName) {
     this.rabbitTemplate = rabbitTemplate;
+    this.importantTopicsErrorExchangeName = importantTopicsErrorExchangeName;
   }
 
   @Scheduled(cron = "${important.topics.sender2.cron}")
   private void reportCurrentTime() {
-    sendImportantTopicsObjects(rabbitTemplate);
+    String routingKey = "com.acme.general";
+    String messageContent = "Important Topics - general 2 - error - ";
+    sendImportantTopicsObjects(
+        routingKey,
+        new ImportantTopic(messageContent, currentDateTimeProvider.getCurrentDateTime())
+    );
   }
 
-  private void sendImportantTopicsObjects(RabbitTemplate rabbitTemplate) {
-    String message = "Important Topics - general 2";
-    String currentDateTime = currentDateTimeProvider.getCurrentDateTime();
-    LOGGER.info("Sending following Important Topics {} and current date time {}", message, currentDateTime);
-    rabbitTemplate.convertAndSend(IMPORTANT_TOPICS_EXCHANGE_NAME_2, "com.acme.general", new ImportantTopic(message, currentDateTime));
+  void sendImportantTopicsObjects(
+      String routingKey,
+      ImportantTopic importantTopic
+  ) {
+    LOGGER.info("Sending following Important Topics {} and current date time {}",
+        importantTopic.messageContent(), importantTopic.currentDateTime());
+    rabbitTemplate.convertAndSend(importantTopicsErrorExchangeName, routingKey, importantTopic);
   }
 
 }

@@ -40,6 +40,7 @@ services:
 3. Execute maven install on the **spring-amqp-demonstration-commons** project.
 4. Start the **spring-amqp-demonstration-producer** project in the IDE or with the maven command.
 
+**Warning**: If all shedluler methods have the cron value "-" the sprng boot producer project will stop. You need at least have one shedluler methods with value, i.e. '*/5 * * * * *' in the message property file.
 **Note**: All exchanges and queues will be created on the first start.
 
 ## Start the consumer project

@@ -15,14 +15,20 @@ public class SpecialMessagesListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SpecialMessagesListener.class);
 
-  @RabbitListener(queues = {"${special.messages.queue.any1}"}, messageConverter = "jackson2Converter")
-  public void receiveSpecialMessage1(@Payload SpecialMessage specialMessage, @Header("from") String from, @Header("pricingModel") String pricingModel) {
+  @RabbitListener(
+      queues = {"${special.messages.queue.any1}"},
+      messageConverter = "jackson2Converter",
+      containerFactory = "defaultContainerFactory")
+  public void receiveSpecialMessageAny1(@Payload SpecialMessage specialMessage, @Header("from") String from, @Header("pricingModel") String pricingModel) {
     LOGGER.info("**** Received Special Message 1 props {} and {} ", specialMessage.messageContent(), specialMessage.currentDateTime());
     LOGGER.info("**** Received Special Message 1 header {} and {} ", from, pricingModel);
   }
 
-  @RabbitListener(queues = {"${special.messages.queue.all}"}, messageConverter = "jackson2Converter")
-  public void receiveSpecialMessage2(@Payload SpecialMessage specialMessage) {
+  @RabbitListener(
+      queues = {"${special.messages.queue.all}"},
+      messageConverter = "jackson2Converter",
+      containerFactory = "defaultContainerFactory")
+  public void receiveSpecialMessageAll1(@Payload SpecialMessage specialMessage) {
     LOGGER.info("**** Received Special Message 2 props {} and {} ", specialMessage.messageContent(), specialMessage.currentDateTime());
   }
 

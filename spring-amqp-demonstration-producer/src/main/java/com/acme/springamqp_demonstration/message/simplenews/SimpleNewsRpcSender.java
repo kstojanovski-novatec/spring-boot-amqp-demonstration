@@ -6,12 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 @PropertySource("classpath:simple-news-rpc.properties")
 @Service
@@ -38,14 +34,16 @@ public class SimpleNewsRpcSender {
 
   @Scheduled(cron = "${simple.news.rpc.sender.cron}")
   private void reportCurrentTime() {
-    sendSimpleNewsRpc();
+    String message = "Simple News RCP " + currentDateTimeProvider.getCurrentDateTime();
+    sendSimpleNewsRpc(message);
   }
 
-  private void sendSimpleNewsRpc() {
-    String message = "Simple News RCP " + currentDateTimeProvider.getCurrentDateTime();
+  String sendSimpleNewsRpc(String message) {
     LOGGER.info("Sending following message RCP : {}", message);
-    String receivedMessage = (String) rabbitTemplate.convertSendAndReceive(simpleNewsExchangeNameRcp, simpleNewsRoutingKey, message);
+    String receivedMessage =
+        (String) rabbitTemplate.convertSendAndReceive(simpleNewsExchangeNameRcp, simpleNewsRoutingKey, message);
     LOGGER.info("Received following message RCP : {}", receivedMessage);
+    return receivedMessage;
   }
 
 }

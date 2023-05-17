@@ -12,7 +12,10 @@ public class SimpleNewsRpcListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SimpleNewsRpcListener.class);
 
-  @RabbitListener(queues = { "${simple.news.rpc.queue.name}" })
+  @RabbitListener(
+      queues = { "${simple.news.rpc.queue.name}" },
+      containerFactory = "defaultContainerFactory"
+  )
   public String receiveSimpleNewsRcp(String message) {
     LOGGER.info("Received Simple News RCP: " + message);
     return "Send back incoming Simple News RCP - " + message;

@@ -11,13 +11,16 @@ import org.springframework.stereotype.Service;
 
 @Service
 @PropertySource("classpath:important-topics.properties")
-@RabbitListener(queues = { "${important.topics.queue.name.general1}" })
+@RabbitListener(
+    queues = {"${important.topics.queue.name.general1}"},
+    containerFactory = "defaultContainerFactory"
+)
 public class ImportantTopicsGeneralListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportantTopicsGeneralListener.class);
 
   @RabbitHandler
-  public void receiveGeneralTopics(String message) {
+  public void receiveGeneralTopicsString(String message) {
     LOGGER.info("Received Important Topics with topic general: " + message);
   }
 

@@ -12,7 +12,11 @@ public class SimpleNewsRpcJsonListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SimpleNewsRpcJsonListener.class);
 
-  @RabbitListener(queues = { "${simple.news.rpc.json.queue.name}" }, messageConverter = "jackson2Converter")
+  @RabbitListener(
+      queues = { "${simple.news.rpc.json.queue.name}" },
+      messageConverter = "jackson2Converter",
+      containerFactory = "defaultContainerFactory"
+  )
   public SimpleNews receiveSimpleNewsRcpJson(SimpleNews simpleNews) {
     LOGGER.info("Received Simple News RCP JSON: {} ", simpleNews);
     return new SimpleNews(

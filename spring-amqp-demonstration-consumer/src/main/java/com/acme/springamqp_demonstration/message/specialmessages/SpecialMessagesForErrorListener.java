@@ -37,8 +37,12 @@ public class SpecialMessagesForErrorListener {
   @Value("${special.messages.routing.key}")
   private String SPECIAL_MESSAGES_ROUTING_KEY;
 
-  @RabbitListener(queues = {"${special.messages.queue.any2}"}, messageConverter = "jackson2Converter")
-  public void receiveSpecialMessage1(
+  @RabbitListener(
+      queues = {"${special.messages.queue.any2}"},
+      messageConverter = "jackson2Converter",
+      containerFactory = "customSpeMesRepublishContainerFactory"
+  )
+  public void receiveSpecialMessageAny2(
       @Payload SpecialMessage specialMessage,
       @Header("from") String from,
       @Header("pricingModel") String pricingModel) {
@@ -48,8 +52,12 @@ public class SpecialMessagesForErrorListener {
     throw new RuntimeException();
   }
 
-  @RabbitListener(queues = {"${special.messages.queue.any2.dlq}"}, messageConverter = "jackson2Converter")
-  public void receiveSpecialMessage1(
+  @RabbitListener(
+      queues = {"${special.messages.queue.any2.dlq}"},
+      messageConverter = "jackson2Converter",
+      containerFactory = "defaultContainerFactory"
+  )
+  public void receiveSpecialMessageAnyDl2(
       Message message,
       @Payload SpecialMessage specialMessage
       ) {
@@ -72,8 +80,12 @@ public class SpecialMessagesForErrorListener {
     rabbitTemplate.convertAndSend(SPECIAL_MESSAGES_EXCHANGE_NAME_2, SPECIAL_MESSAGES_ROUTING_KEY, message);
   }
 
-  @RabbitListener(queues = {"${special.messages.queue.any2.plq}"}, messageConverter = "jackson2Converter")
-  public void processParkingLotQueue(
+  @RabbitListener(
+      queues = {"${special.messages.queue.any2.plq}"},
+      messageConverter = "jackson2Converter",
+      containerFactory = "defaultContainerFactory"
+  )
+  public void receiveSpecialMessageAnyPl2(
       @Payload SpecialMessage specialMessage,
       @Header("from") String from,
       @Header("pricingModel") String pricingModel

@@ -13,14 +13,20 @@ public class ImportantTopicsGeneralForErrorListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportantTopicsGeneralForErrorListener.class);
 
-  @RabbitListener(queues = { "${important.topics.queue.name.general2}" }, concurrency = "4")
-  public void receiveGeneralTopics(final ImportantTopic importantTopic) {
+  @RabbitListener(
+      queues = { "${important.topics.queue.name.general2}" },
+      containerFactory = "customImpTopRepublishContainerFactory"
+  )
+  public void receiveGeneralTopicsError(final ImportantTopic importantTopic) {
     LOGGER.info("Receiving Important Topics with topic general: {} with date time {}",
         importantTopic.messageContent(), importantTopic.currentDateTime());
     throw new RuntimeException();
   }
 
-  @RabbitListener(queues = { "${important.topics.queue.name.general2.dlq}" }, concurrency = "4")
+  @RabbitListener(
+      queues = { "${important.topics.queue.name.general2.dlq}" },
+      containerFactory = "defaultRetryContainerFactory"
+  )
   public void receiveGeneralTopicsDlq(final ImportantTopic importantTopic) {
     LOGGER.info("Receiving Important Topics with topic general {} failed!", importantTopic.currentDateTime());
   }

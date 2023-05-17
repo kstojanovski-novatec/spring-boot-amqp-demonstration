@@ -16,37 +16,43 @@ public class ImportantTopicsSender {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportantTopicsSender.class);
 
-  @Value("${important.topics.exchange.name1}")
-  public String IMPORTANT_TOPICS_EXCHANGE_NAME_1;
-
   private final RabbitTemplate rabbitTemplate;
+  private final String importantTopicsExchangeName;
 
   private final CurrentDateTimeProvider currentDateTimeProvider = new CurrentDateTimeProvider();
 
-  public ImportantTopicsSender(RabbitTemplate rabbitTemplate) {
+  public ImportantTopicsSender(
+      RabbitTemplate rabbitTemplate,
+      @Value("${important.topics.exchange.name1}") String importantTopicsExchangeName) {
     this.rabbitTemplate = rabbitTemplate;
+    this.importantTopicsExchangeName = importantTopicsExchangeName;
   }
 
   @Scheduled(cron = "${important.topics.sender1.cron}")
   private void reportCurrentTime() {
-    sendImportantTopics(rabbitTemplate);
-    sendImportantTopicsObjects(rabbitTemplate);
-  }
-
-  private void sendImportantTopics(RabbitTemplate rabbitTemplate) {
-    String message = "Important Topics " + currentDateTimeProvider.getCurrentDateTime();
-    LOGGER.info("Sending following Important Topics: {}", message);
-    rabbitTemplate.convertAndSend(IMPORTANT_TOPICS_EXCHANGE_NAME_1, "com.acme.general", message.concat(" general"));
-    rabbitTemplate.convertAndSend(IMPORTANT_TOPICS_EXCHANGE_NAME_1, "com.acme.general.sport", message.concat(" general.sport"));
-    rabbitTemplate.convertAndSend(IMPORTANT_TOPICS_EXCHANGE_NAME_1, "com.acme.important-topics.lifestyle", message.concat(" important-topics.lifestyle"));
-    rabbitTemplate.convertAndSend(IMPORTANT_TOPICS_EXCHANGE_NAME_1, "com.acme.important-topics.sport.football", message.concat(" important-topics.sport.football"));
-  }
-
-  private void sendImportantTopicsObjects(RabbitTemplate rabbitTemplate) {
-    String message = "Important Topics - general 1";
     String currentDateTime = currentDateTimeProvider.getCurrentDateTime();
+    String message = "Important Topics " + currentDateTime;
+    LOGGER.info("Sending following Important Topics: {}", message);
+    sendImportantTopics("com.acme.general", message.concat(" general"));
+    sendImportantTopics("com.acme.general.sport", message.concat(" general.sport"));
+    sendImportantTopics("com.acme.important-topics.lifestyle", message.concat(" important-topics.lifestyle"));
+    sendImportantTopics("com.acme.important-topics.sport.football", message.concat(" important-topics.sport.football"));
+
+    message = "Important Topics - general 1";
     LOGGER.info("Sending following Important Topics {} and current date time {}", message, currentDateTime);
-    rabbitTemplate.convertAndSend(IMPORTANT_TOPICS_EXCHANGE_NAME_1, "com.acme.general", new ImportantTopic(message, currentDateTime));
+    sendImportantTopicsObjects("com.acme.general", new ImportantTopic(message, currentDateTime));
+    sendImportantTopicsObjects("com.acme.general.sport", new ImportantTopic(message, currentDateTime));
+  }
+
+  void sendImportantTopics(String routingKey, String message) {
+    LOGGER.info("Sending following Important Topics '{}' with routing Key {}", message, routingKey);
+    rabbitTemplate.convertAndSend(importantTopicsExchangeName, routingKey, message);
+  }
+
+  void sendImportantTopicsObjects(String routingKey, ImportantTopic importantTopic) {
+    LOGGER.info("Sending following Important Topics {} and current date time {}",
+        importantTopic.messageContent(), importantTopic.currentDateTime());
+    rabbitTemplate.convertAndSend(importantTopicsExchangeName, routingKey, importantTopic);
   }
 
 }

@@ -34,11 +34,10 @@ public class SimpleNewsSender {
 
   @Scheduled(cron = "${simple.news.sender.cron}")
   private void reportCurrentTime() {
-    sendSimpleNews();
+    sendSimpleNews("Simple News " + currentDateTimeProvider.getCurrentDateTime());
   }
 
-  void sendSimpleNews() {
-    String message = "Simple News " + currentDateTimeProvider.getCurrentDateTime();
+  void sendSimpleNews(String message) {
     LOGGER.info("Sending following message: {}", message);
     rabbitTemplate.convertAndSend(simpleNewsExchangeName, simpleNewsRoutingKey, message);
   }

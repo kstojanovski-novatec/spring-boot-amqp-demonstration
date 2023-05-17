@@ -10,9 +10,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
-
 @PropertySource("classpath:simple-news-rpc-json.properties")
 @Service
 public class SimpleNewsRpcJsonSender {
@@ -38,15 +35,21 @@ public class SimpleNewsRpcJsonSender {
 
   @Scheduled(cron = "${simple.news.rpc.json.sender.cron}")
   private void reportCurrentTime() {
-    sendSimpleNewsRpcJson();
+    sendSimpleNewsRpcJson(
+        new SimpleNews("Simple News RCP JSON", currentDateTimeProvider.getCurrentDateTime())
+    );
   }
 
-  private void sendSimpleNewsRpcJson() {
-    SimpleNews simpleNewsRcp = new SimpleNews("Simple News RCP JSON", currentDateTimeProvider.getCurrentDateTime());
-    LOGGER.info("Sending following message RCP as JSON : {}", simpleNewsRcp);
-    SimpleNews inboundSimpleNewsRcp = jsonRabbitTemplate.convertSendAndReceiveAsType(
-        simpleNewsExchangeNameRcpJson, simpleNewsRoutingKey, simpleNewsRcp, ParameterizedTypeReference.forType(SimpleNews.class));
-    LOGGER.info("Received following message RCP as JSON : {}", inboundSimpleNewsRcp);
+  SimpleNews sendSimpleNewsRpcJson(SimpleNews simpleNews) {
+    LOGGER.info("Sending following message RCP as JSON : {}", simpleNews);
+    SimpleNews receivedSimpleNews = jsonRabbitTemplate.convertSendAndReceiveAsType(
+        simpleNewsExchangeNameRcpJson,
+        simpleNewsRoutingKey,
+        simpleNews,
+        ParameterizedTypeReference.forType(SimpleNews.class)
+    );
+    LOGGER.info("Received following message RCP as JSON : {}", receivedSimpleNews);
+    return receivedSimpleNews;
   }
 
 }

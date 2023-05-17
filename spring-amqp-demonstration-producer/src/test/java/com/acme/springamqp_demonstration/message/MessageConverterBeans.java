@@ -1,10 +1,9 @@
-package com.acme.springamqp_demonstration.message.simplenews;
+package com.acme.springamqp_demonstration.message;
 
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.SimpleMessageConverter;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 @TestConfiguration
 public class MessageConverterBeans {
