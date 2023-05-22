@@ -3,8 +3,6 @@ package com.acme.springamqp_demonstration.message.simplenews;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
-import static org.mockito.Mockito.spy;
-
 @Service
 public class SimpleNewsWorkersTestListener {
 

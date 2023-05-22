@@ -4,7 +4,6 @@ import com.acme.springamqp_demonstration.message.DefaultContainerFactoryConfig;
 import com.acme.springamqp_demonstration.message.MessageConverterBeans;
 import com.acme.springamqp_demonstration.message.RabbitMqTestContainer;
 import com.acme.springamqp_demonstration.message.RabbitTemplateTestBeans;
-import com.acme.springamqp_demonstration.message.importanttopics.ImportantTopicsGeneralTestListener;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 

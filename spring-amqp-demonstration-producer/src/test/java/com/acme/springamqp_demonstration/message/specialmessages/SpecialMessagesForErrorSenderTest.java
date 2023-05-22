@@ -12,7 +12,6 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isA;
 
 public class SpecialMessagesForErrorSenderTest {
 

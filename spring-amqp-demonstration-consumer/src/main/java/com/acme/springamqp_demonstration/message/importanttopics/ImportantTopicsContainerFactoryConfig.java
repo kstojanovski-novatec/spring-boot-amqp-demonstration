@@ -1,8 +1,6 @@
 package com.acme.springamqp_demonstration.message.importanttopics;
 
 import org.aopalliance.aop.Advice;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
@@ -19,7 +17,6 @@ import org.springframework.retry.interceptor.RetryOperationsInterceptor;
 @Configuration
 @EnableRabbit
 public class ImportantTopicsContainerFactoryConfig {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ImportantTopicsContainerFactoryConfig.class);
 
   @Value("${important.topics.exchange.name2.dlx}")
   private String IMPORTANT_TOPICS_EXCHANGE_NAME_2_DLX;
