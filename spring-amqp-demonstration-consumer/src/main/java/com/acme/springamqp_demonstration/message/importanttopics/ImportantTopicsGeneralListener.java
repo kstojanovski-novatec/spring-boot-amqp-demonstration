@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 @Service
 @PropertySource("classpath:important-topics.properties")
 @RabbitListener(
-    queues = {"${important.topics.queue.name.general1}"},
+    id = "importantTopicsGeneralMultiMethodListener",
+    queues= {"${important.topics.queue.name.general1}"},
     containerFactory = "defaultContainerFactory"
 )
 public class ImportantTopicsGeneralListener {

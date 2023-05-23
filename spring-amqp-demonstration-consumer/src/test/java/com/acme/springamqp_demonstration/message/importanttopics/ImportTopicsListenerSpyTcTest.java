@@ -1,11 +1,10 @@
-package com.acme.springamqp.testingissue.differenttypes;
+package com.acme.springamqp_demonstration.message.importanttopics;
 
-import com.acme.springamqp.testingissue.RabbitMqTestContainer;
-import com.acme.springamqp.testingissue.RabbitTemplateTestBeans;
-import com.acme.springamqp.testingissue.config.DefaultContainerFactoryConfig;
-import com.acme.springamqp.testingissue.config.MessageConverterBeans;
-import com.acme.springamqp.testingissue.differenttypes.config.DifferentTypesConfig;
-import com.acme.springamqp.testingissue.differenttypes.model.SimpleMessage;
+import com.acme.springamqp_demonstration.message.DefaultContainerFactoryConfig;
+import com.acme.springamqp_demonstration.message.MessageConverterBeans;
+import com.acme.springamqp_demonstration.message.RabbitMqTestContainer;
+import com.acme.springamqp_demonstration.message.RabbitTemplateTestBeans;
+import com.acme.springamqp_demonstration.message.importanttopics.model.ImportantTopic;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.test.RabbitListenerTest;
@@ -28,51 +27,53 @@ import static org.mockito.Mockito.verify;
 
 @SpringJUnitConfig
 @DirtiesContext
-@PropertySource("classpath:different-types.properties")
+@PropertySource("classpath:important-topics.properties")
 @ContextConfiguration(
 		classes = {
 				MessageConverterBeans.class,
 				RabbitTemplateTestBeans.class,
 				DefaultContainerFactoryConfig.class,
-				DifferentTypesConfig.class,
-				DifferentTypesDistributorListener.class,
-				DifferentTypesDistributorListenerSpyTcTest.Config.class
+				ImportantTopicsConfig.class,
+				ImportantTopicsGeneralListener.class,
+				ImportTopicsListenerSpyTcTest.Config.class
 		}
 )
-public class DifferentTypesDistributorListenerSpyTcTest extends RabbitMqTestContainer {
+public class ImportTopicsListenerSpyTcTest extends RabbitMqTestContainer {
 
 	@Autowired
-	private RabbitTemplate jsonRabbitTemplate;
+	private RabbitTemplate rabbitTemplate;
 
 	@Autowired
 	private RabbitListenerTestHarness harness;
 
-	@Value("${different.types.queue.name.message-types}")
-	private String DIFFERENT_TYPES_QUEUE_NAME;
+	@Value("${important.topics.queue.name.general1}")
+	private String IMPORTANT_TOPIC_TYPES_QUEUE_NAME;
 
 	@Test
 	public void testingMultiHandler() throws Exception {
-		DifferentTypesDistributorListener differentTypesDistributorListener = this.harness.getSpy("message-types");
-		assertThat(differentTypesDistributorListener).isNotNull();
+		ImportantTopicsGeneralListener importantTopicsGeneralListener =
+				this.harness.getSpy("importantTopicsGeneralMultiMethodListener");
+		assertThat(importantTopicsGeneralListener).isNotNull();
 
-		LatchCountDownAndCallRealMethodAnswer answer = this.harness.getLatchAnswerFor("message-types", 4);
-		willAnswer(answer).given(differentTypesDistributorListener).receiveGeneralTopicsString(anyString());
-		willAnswer(answer).given(differentTypesDistributorListener).receiveGeneralTopics(any());
+		LatchCountDownAndCallRealMethodAnswer answer =
+				this.harness.getLatchAnswerFor("importantTopicsGeneralMultiMethodListener", 4);
+		willAnswer(answer).given(importantTopicsGeneralListener).receiveGeneralTopicsString(anyString());
+		willAnswer(answer).given(importantTopicsGeneralListener).receiveGeneralTopics(any());
 
 		String bar = "bar";
-		SimpleMessage sm1 = new SimpleMessage(bar);
+		ImportantTopic sm1 = new ImportantTopic(bar, bar);
 		String baz = "baz";
-		SimpleMessage sm2 = new SimpleMessage(baz);
-		this.jsonRabbitTemplate.convertAndSend(DIFFERENT_TYPES_QUEUE_NAME, bar);
-		this.jsonRabbitTemplate.convertAndSend(DIFFERENT_TYPES_QUEUE_NAME, baz);
-		this.jsonRabbitTemplate.convertAndSend(DIFFERENT_TYPES_QUEUE_NAME, sm1);
-		this.jsonRabbitTemplate.convertAndSend(DIFFERENT_TYPES_QUEUE_NAME, sm2);
+		ImportantTopic sm2 = new ImportantTopic(baz, baz);
+		this.rabbitTemplate.convertAndSend(IMPORTANT_TOPIC_TYPES_QUEUE_NAME, bar);
+		this.rabbitTemplate.convertAndSend(IMPORTANT_TOPIC_TYPES_QUEUE_NAME, baz);
+		this.rabbitTemplate.convertAndSend(IMPORTANT_TOPIC_TYPES_QUEUE_NAME, sm1);
+		this.rabbitTemplate.convertAndSend(IMPORTANT_TOPIC_TYPES_QUEUE_NAME, sm2);
 
 		assertThat(answer.await(10)).isTrue();
-		verify(differentTypesDistributorListener).receiveGeneralTopicsString(bar);
-		verify(differentTypesDistributorListener).receiveGeneralTopicsString(baz);
-		verify(differentTypesDistributorListener).receiveGeneralTopics(sm1);
-		verify(differentTypesDistributorListener).receiveGeneralTopics(sm2);
+		verify(importantTopicsGeneralListener).receiveGeneralTopicsString(bar);
+		verify(importantTopicsGeneralListener).receiveGeneralTopicsString(baz);
+		verify(importantTopicsGeneralListener).receiveGeneralTopics(sm1);
+		verify(importantTopicsGeneralListener).receiveGeneralTopics(sm2);
 	}
 
 	@Configuration
@@ -80,8 +81,8 @@ public class DifferentTypesDistributorListenerSpyTcTest extends RabbitMqTestCont
 	public static class Config {
 
 		@Bean
-		public DifferentTypesDistributorListener differentTypesDistributorListener() {
-			return new DifferentTypesDistributorListener();
+		public ImportantTopicsGeneralListener importantTopicsGeneralListener() {
+			return new ImportantTopicsGeneralListener();
 		}
 
 	}
