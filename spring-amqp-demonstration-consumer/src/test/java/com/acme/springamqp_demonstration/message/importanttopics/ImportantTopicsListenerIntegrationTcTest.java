@@ -22,6 +22,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+/**
+ * FIXME - Modify this test after the <a href="https://github.com/spring-projects/spring-amqp/milestone/210">release
+ * of Spring AMQP 3.0.5 on June 19, 2023</a> because of the:
+ * <ul>
+ * <li><a href="https://github.com/spring-projects/spring-amqp/issues/2456">Bug 2456</a></li>
+ * <li><a href="https://github.com/spring-projects/spring-amqp/issues/2457">Fix 2457</a></li>
+ * </ul>
+ * Modify the part of {@link ImportantTopicsGeneralTestListener} by replacing it with the verify command on the original
+ * implementation {@link ImportantTopicsGeneralListener}.
+ *
+ */
 @SpringBootTest
 @ContextConfiguration(
     classes = {
